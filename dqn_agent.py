@@ -118,14 +118,13 @@ class Agent():
         loss = F.mse_loss(Q_expected, Q_targets)
         if self.prioritized_replay:
             priorities = np.sqrt(loss.detach().cpu().data.numpy())
+            self.memory.update_priorities(indices, priorities)
             loss = loss * weights
             loss = loss.mean()
             
         # Minimize the loss
         self.optimizer.zero_grad()
         loss.backward()
-        if self.prioritized_replay:
-            self.memory.update_priorities(indices, priorities)
         self.optimizer.step()
 
         # ------------------- update target network ------------------- #
